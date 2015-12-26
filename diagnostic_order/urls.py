@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'new_order/search_orderer/$', 'order.views.search_orderer', name='search_orderer'),
     url(r'search_subject/$', 'order.views.search_subject', name='search_subject'),
     url(r'search_type/$', 'order.views.search_type', name='search_type'),
+    url(r'search_Observation/$', 'order.views.search_Observation', name='search_Observation'),
     url(r'search_sptInfo/$', 'order.views.search_sptInfo', name='search_sptInfo'),
     url(r'search_specimen/$', 'order.views.search_specimen', name='search_specimen'),
     url(r'search_actor/$', 'order.views.search_actor', name='search_actor'),
@@ -24,6 +25,7 @@ urlpatterns = patterns('',
     url(r'^new_order/updata/$', 'order.views.updata', name="updata"),
     url(r'^edit_order/(?P<id>.+)', 'order.views.edit', name="edit"),
     url(r'^updataOrder/$', 'order.views.updataOrder', name="updataOrder"),
+    url(r'recv_redirect/', 'order.views.recv_redirect', name='recv_redirect'),
     url(r'^new_order/search_target/$', 'order.views.search_target', name='target')
     
 )

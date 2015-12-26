@@ -6,27 +6,26 @@ $(function () { $('#subject_modal').on('shown.bs.modal', function () {
     changeTitleToWating("subject_title", text);
   $.getJSON("search_subject/",{'subject':text}, function(ret){            
     var subul = document.getElementById("sub_id");
+    console.log(ret);
     var sum = ret['total'];
     ret = ret['entry'];
     changeTitleToResult("subject_title", text, sum);
     for (var i = ret.length - 1; i >= 0; i--) {
-      subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item sub_item\" id=\"sub_li_" + i +"\"><label>"+ret[i]['resource']['name'][0]['given'] + " " + ret[i]['resource']['name'][0]['family']+ "/"+ ret[i]['resource']['id'] +"</label></li>";      
+      subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item sub_item\" id=\"sub_li_" + i +"\"><label>"
+      + text + ":"+ ret[i]['content']['name'][0]['text'] + "</label>"
+      + "<span id='subject_entry_id' hidden>" + ret[i]['id'] +"</span>"
+      +"</li>";      
     };
     for (var i = ret.length - 1; i >= 0; i--) {
       var li = document.getElementById("sub_li_"+i);
       li.onclick = function(){
-      var id = $(this).attr("id");
-      var li = document.getElementById(id);
-      var str = li.innerHTML;
-      str = str.substring(7, str.length-8);
-      //str = str.match("[0-9]*$")
-      var obj = $('#subject_sel option:selected').val();
-      var text = document.getElementById('subject_chosen');
-      text.innerHTML = obj + "/" + str;
-
-      $('#subject_modal').modal('hide')
-          }
-        }
+        var str = $(this).children("label").text();
+        var id = $(this).children("span").text();
+        $("p#subject_chosen").text(str);
+        $("span#id_subject").text(id);
+        $('#subject_modal').modal('hide')
+      }
+    }
     })
     }//<!-- end of if -->
   })
@@ -42,22 +41,25 @@ $(function () { $('#type_modal').on('shown.bs.modal', function () {
 
     $.getJSON("search_type/",{'subject':text}, function(ret){                  
       var ord_ul = document.getElementById("type_id");
+      console.log(typeof(ret));
       sum = ret['total'];
       title.innerHTML = text + " " + sum +" Results"
       ret = ret['entry'];
       for (var i = ret.length - 1; i >= 0; i--) {
-        ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item type_item\" id=\"type_li_" + i +"\"><label>"+ ret[i]['resource']['patient']['reference'] + "--Encounter/" + ret[i]['resource']['id'] +"</label></li>";     
+        var str = ret[i]['resource']['text']['div'].substring(5);
+        var id = ret[i]['resource']['id'];
+        ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item type_item\" id=\"type_li_" + i +"\"><label>"
+        + str + "</label>" + "<span id='encounter_entry_id' hidden>" + id + "</span>"
+        +"</li>";     
       };
       for (var i = ret.length - 1; i >= 0; i--) {
         var li = document.getElementById("type_li_"+i);
         li.onclick = function(){
-          var id = $(this).attr("id");
-          var li = document.getElementById(id);
-          var str = li.innerHTML;
-          str = str.substring(7, str.length-8);
-          var text = document.getElementById('type_chosen');
-          text.innerHTML = str;
-          $('#type_modal').modal('hide')
+          var name = $(this).children("label").text();
+          var id = $(this).children("span").text();
+          $("p#type_chosen").text(name);
+          $("span#id_encounter").text(id);
+          $('#type_modal').modal('hide');
         }
       }
     })
@@ -74,7 +76,11 @@ $(function () { $('#orderer_modal').on('shown.bs.modal', function () {
   $.getJSON("search_orderer/",{'subject':text}, function(ret){   
         var ord_ul = document.getElementById("ord_id");
         for (var i = ret.length - 1; i >= 0; i--) {
-          ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item ord_item\" id=\"ord_li_" + i +"\"><label>"+ret[i]['resource']['name']['given'][0] + " " + ret[i]['resource']['name']['family'][0]+"</label></li>";
+          practitioner = ret[i]['resource']['text']['div'];
+          practitioner = practitioner.substring(7, practitioner-8);
+          ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item ord_item\" id=\"ord_li_" + i +"\"><label>"
+          + practitioner +
+          "</label></li>";
         };
         for (var i = ret.length - 1; i >= 0; i--) {
           var li = document.getElementById("ord_li_"+i);
@@ -100,23 +106,26 @@ $(function () { $('#sptInfo_modal').on('shown.bs.modal', function () {
     if(a.length == 0){
       changeTitleToWating("supt_title", text);
       $.getJSON("search_sptInfo/",{'subject':text}, function(ret){
+
           var sum = ret['total'];
           ret = ret['entry']
           changeTitleToResult("supt_title", text, sum);
           var subul = document.getElementById("sptInfo_id");
           for (var i = ret.length - 1; i >= 0; i--) {
-            subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item sptInfo_item\" id=\"sptInfo_li_" + i +"\"><label>"+ret[i]['fullUrl'] + "</label></li>"; 
+            var str = ret[i]['resource']['text']['div'].substring(5);
+            var id = ret[i]['resource']['id'];
+            subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item sptInfo_item\" id=\"sptInfo_li_" + i +"\"><label>"
+            + str + "</label>" + "<span id='sptInfo_entry_id' hidden>" + id + "</span>"
+            + "</li>"; 
           };
           for (var i = ret.length - 1; i >= 0; i--) {
             var li = document.getElementById("sptInfo_li_"+i);
             li.onclick = function(){
-              var id = $(this).attr("id");
-              var li = document.getElementById(id);
-              var str = li.innerHTML;
-              str = str.substring(7, str.length-8);
-              var text = document.getElementById('sptInfo_chosen');
-              text.innerHTML = str;
-              $('#sptInfo_modal').modal('hide')
+              var str = $(this).children("label").text();
+              var id = $(this).children("span").text();
+              $("p#sptInfo_chosen").text(str);
+              $("span#id_sptInfo").text(id);
+              $('#sptInfo_modal').modal('hide');
             }
           }
       })
@@ -136,17 +145,25 @@ $(function () { $('#spec_modal').on('shown.bs.modal', function () {
           changeTitleToResult('spec_title', text, sum);
           ret = ret['entry'];
           if (sum > 0){
-            var ord_ul = document.getElementById("spec_id");               
-            ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item spec_item\" id=\"spec_li_0" +"\"><label>"+ret['total'] +"</label></li>";
-            var li = document.getElementById("spec_li_0");
-            li.onclick = function(){
-              var id = $(this).attr("id");
-              var li = document.getElementById(id);
-              var str = li.innerHTML;
-              str = str.substring(7, str.length-8);
-              var text = document.getElementById('spec_chosen');
-              text.innerHTML = str;
-              $('#spec_modal').modal('hide')
+
+            var ord_ul = document.getElementById("spec_id");
+            for (var i = ret.length - 1; i >= 0; i--) {
+            var str = ret[i]['resource']['text']['div'].substring(5);
+            var id = ret[i]['resource']['id'];
+            ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item sptInfo_item\" id=\"sptInfo_li_" + i +"\"><label>"
+            + str + "</label>" + "<span id='sptInfo_entry_id' hidden>" + id + "</span>"
+            + "</li>"; 
+            };            
+
+            for (var i = ret.length - 1; i >= 0; i--) {
+              var li = document.getElementById("spec_li_"+i);
+              li.onclick = function(){
+                var str = $(this).children("label").text();
+                var id = $(this).children("span").text();
+                $("p#spec_chosen").text(str);
+                $("span#id_spec").text(id);
+                $('#spec_modal').modal('hide');
+              }
             }
           }
       })
@@ -184,6 +201,45 @@ $(function () { $('#item_spec_modal').on('shown.bs.modal', function () {
   });
 
 
+$(function () { $('#item_obseq_modal').on('shown.bs.modal', function () {
+    var text = 'Observation';
+    var obj = document.getElementById("item_obseq_id");
+    var a = obj.getElementsByTagName("li");
+    if(a.length == 0){
+      changeTitleToWating("item_obseq_title", text);
+      $.getJSON("search_Observation/",{'subject':text}, function(ret){
+          console.log(typeof(ret));
+          console.log(ret);
+          var sum = ret['total'];
+          alert(ret["entry"]);
+          changeTitleToResult("item_obseq_title", text, sum);
+          if (sum > 0 ){
+            ret = ret['entry'];
+            var ord_ul = document.getElementById("item_obseq_id");
+            for (var i = ret.length - 1; i >= 0; i--) {
+              var str = ret[i]['div'].substring(5);
+              var id = ret[i]['id'];
+              ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item obseq_item\" id=\"item_obseq_li_"+i +"\"><label>"
+              + str + "</label><span id='item_obseq_entry_id' hidden>" + id + "</span>"
+              +"</li>";                   
+            };
+            
+            for (var i = ret.length - 1; i >= 0; i--) {
+              var li = document.getElementById("item_obseq_li_"+i);
+              li.onclick = function(){
+                var str = $(this).children("label").text();
+                var id = $(this).children("span").text();
+                $("p#item_obseq_chosen").text(str);     
+                $("span#id_item_obseq").text(id);      
+                $('#item_obseq_modal').modal('hide');
+              }
+            }
+          }
+      })
+      }//<!-- end of if -->
+    })
+  });
+
 function changeTitleToWating(title_id, text){
   var title = document.getElementById(title_id);
   title.innerHTML = text + " Waiting...";
@@ -196,6 +252,7 @@ function changeTitleToResult(title_id, text, sum){
 
 var target = "";       
 $(function () { $('#target_modal').on('shown.bs.modal', function () {
+
   var text = $('#target_sel option:selected').val();
   if (text != target){
     var ul = document.getElementById("target_id");
@@ -204,6 +261,7 @@ $(function () { $('#target_modal').on('shown.bs.modal', function () {
     }
     target = text;
   }
+
   var obj = document.getElementById("target_id");
   var a = obj.getElementsByTagName("li");
   if(a.length == 0){
@@ -215,20 +273,22 @@ $(function () { $('#target_modal').on('shown.bs.modal', function () {
       changeTitleToResult("target_title", text, sum);
       var subul = document.getElementById("target_id");
       for (var i = ret.length - 1; i >= 0; i--) {
-        subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item ord_item\" id=\"target_li_" + i +"\"><label>"+ret[i]['resource']['name']['given'][0] + " " + ret[i]['resource']['name']['family'][0]+ "/"+ ret[i]['resource']['id'] + "</label></li>"; 
+        var str = ret[i]['resource']['text']['div'].substring(5);
+        
+        subul.innerHTML = subul.innerHTML +  
+        "<li class=\"list-group-item ord_item\" id=\"target_li_" + i +"\"><label>"
+        +str + "</label>"
+        + "<span id='target_entry_id' hidden>" + ret[i]['resource']['id'] + "</span>"
+        + "</li>"; 
       }
       for (var i = ret.length - 1; i >= 0; i--) {
         var l = document.getElementById("target_li_"+i);
         l.onclick = function(){
-          var id = $(this).attr("id");
-          var li = document.getElementById(id);
-          var str = li.innerHTML;
-          str = str.substring(7, str.length-8);
-          var obj = $('#target_sel option:selected').val();
-          str = obj + "/" + str;
-          var text = document.getElementById('target_chosen');
-          text.innerHTML = str;
-          $('#target_modal').modal('hide')
+          var name = $(this).children("label").html();
+          var id = $(this).children("span").text();
+          $("p#target_chosen").text(name);
+          $("span#id_target").text(id);
+          $('#target_modal').modal('hide');
         }
       }
       })
@@ -239,13 +299,17 @@ $(function () { $('#target_modal').on('shown.bs.modal', function () {
 
 
 var item_sum = 0;
+
 function add_item(){
   item_sum = item_sum+1;
   item = document.getElementById("new_digorder_item");
   context = document.getElementById("new_digorder_item_0");
-  item.innerHTML = item.innerHTML
-  + "<div class=\"row\" id = \"new_digorder_item_" + item_sum +"\"" +">"
-  + context.innerHTML + "</div>";
+
+  var str = "<div class=\"row\" id = \"new_digorder_item_" + item_sum +"\"" +">"+ context.innerHTML + "</div>"
+  $("div#new_digorder_item").append(str);
+  //item.innerHTML = item.innerHTML
+  //+ "<div class=\"row\" id = \"new_digorder_item_" + item_sum +"\"" +">"
+  //+ context.innerHTML + "</div>";
   if (item_sum == 1) {
     btn = document.getElementById("del_item_id");
     btn.style.display = "block";
@@ -311,42 +375,60 @@ function get_page_data(){
     body_display = div.val();
     div = $("#new_digorder_item_"+i).find("input.body_description");
     body_description = div.val();
-    item[i]={
-      'code':{
-        'coding': [
-          {
-            'system': item_system,
-            'code': item_code,
-            'display': item_display,
-          },
-        ],
-        'text': item_description,
-      },
-      //'specimen':$("#new_digorder_item_"+i).find("p#spec_chosen").text(),
-      'bodySite':{
-        'coding':[
-        {
-          'system': body_system,
-          'code': body_code,
-          'display': body_display,
-        },
-        ],
-        'text':body_description,
-      },
-      'status':'requested'//9999
+
+    observation = $("#item_obseq_chosen").text();
+    if (observation != ''){
+      observation = 'Observation\/'+$('span#id_item_obseq').text();
     }
+    specimen = $("#item_spec_chosen").text();
+    if (specimen != ''){
+      specimen = 'Specimen\/' + $("span#id_spec").text();
+    }
+    
+    item[i] = {
+      'extension':[
+        {
+          'url':"code",
+          "valueCodeableConcept":{
+              'coding': [
+               {
+                'system': item_system,
+                'code': item_code,
+                'display': item_display,
+               },
+              ],
+              'text': item_description,
+          }
+        },
+        {
+          "url" : "obsForSequence",
+          "valueReference": {
+            "reference":observation,
+          }
+        },
+        {
+          "url" : "specimen",
+          "valueReference":{
+            "reference": specimen,
+          }
+        },
+        {
+          "url" : "status",
+           "valueCode" : "requested",
+        },
+      ],
+      "url": "http://hl7.org/fhir/StructureDefinition/diagnosticorder-geneticsItem",
+    };
   }
 
   sub = $('p#subject_chosen').text();
-  var subject= get_ref(/Patient|Group|Location|Device/, sub);
+  var subject= get_ref(/Patient|Group|Location|Device/, sub) + $('span#id_subject').text();
   sub = $('p#target_chosen').text(); 
-  var target= get_ref(/Practitioner|Device|Organization/, sub);
+  var target= get_ref(/Practitioner|Device|Organization/, sub) + $('span#id_target').text();
   sub = $('p#type_chosen').text();
   var regx = /Encounter\/\d+/;
-  var encounter = regx.exec(sub);
-
+  var encounter = "Encounter\/" + $('span#id_encounter').text();
   var order_id = $('p#order_id').text();
-
   var infos = {
     id_system:$('#id_system').val(),
     id_value:$('#id_value').val(),
@@ -360,10 +442,8 @@ function get_page_data(){
     reason_code:$("#reason_code").val(),
     reason_display:$("#reason_display").val(),
     reason_description:$("#reason_description").val(),
-    support:$('p#sptInfo_chosen').text(),
     specimen:$("p#spec_chosen").text(),
     priority:$('#prio_sel option:selected').val(),
-    encounter:$("p#type_chosen").text(),
     item:item,
     note:$("#note_id").val(),
   }
@@ -411,13 +491,9 @@ function form_report_json(info){
             "text": info.reason_description,
           }
         ],
-        "supportingInformation": [
-          {
-            "reference": info.support
-          }
-        ],
+        "priority" : info.priority,
         "status": "requested",
-        "item":info.item,
+        "extension":info.item,
         "event": [
           {
             "status": "requested",
@@ -425,6 +501,11 @@ function form_report_json(info){
             "actor": {
               "reference": "example"
             }
+          }
+        ],
+        "note": [
+          {
+            "text": info.note,
           }
         ],
       },
@@ -443,9 +524,14 @@ function form_report_json(info){
     }
   return res_json
 }
-
+var show_msg = function(msg) {
+  $('div.hint-msg').html(msg);
+  $('div.hint-msg').removeClass('hide');
+  $('div.hint-msg').show(200).delay(1000).hide(200);
+}
 function Submit(){
   var post_data = form_report_json(get_page_data());
+  console.log(post_data);
   var json_str = JSON.stringify(post_data);
   $.ajax({
     url:"updata/",
@@ -453,10 +539,11 @@ function Submit(){
     dataType:"json",
     type:"POST",
     success:function(result){
-        //do something
-        alert("Successfully");
+      
+      show_msg();
     }
   });
+
 }
 
 function save(){
@@ -474,7 +561,7 @@ function save(){
       type:"POST",
       success:function(result){
           //do something
-          alert("Successfully");
+          show_msg();
       }
     });
   }else{
@@ -487,7 +574,7 @@ function save(){
       type:"PUT",
       success:function(result){
           //do something
-          alert("Successfully");
+         show_msg();
       }
     });
   }
@@ -520,3 +607,9 @@ $.ajaxSetup({
     }     
   } 
 });
+
+/*
+$(window).bind('beforeunload',function(){
+return '您输入的内容尚未保存，确定离开此页面吗？';
+});
+*/

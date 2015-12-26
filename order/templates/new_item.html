@@ -65,6 +65,7 @@
           <span class="col-xs-4 col-sm-4 col-md-4 col-lg-4" ></span>
           <p name="subject" id="subject_chosen" class="col-sm-6 col-xs-6 col-mg-6 col-lg-6">
           </p>
+          <span id='id_subject' hidden></span>
         </div>
       </div>
       <!--target-->
@@ -101,6 +102,7 @@
         <div>
           <span class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></span>
           <p name="target" id="target_chosen" class="col-sm-6 col-xs-6 col-mg-6 col-lg-6"></p>
+          <span id='id_target' hidden></span>
         </div>
       </div>
       <!-- Encounter -->
@@ -108,6 +110,7 @@
         <div>   
         <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Encounter</label>
         <p id="type_chosen" class="col-sm-4 col-xs-4 col-mg-4 col-lg-4"></p>
+        <span id='id_encounter' hidden></span>
         <button class="btn-info col-sm-2 col-xs-2 col-mg-2 col-lg-2" type="text" data-toggle="modal" data-target="#type_modal">
           Reference
         </button> 
@@ -139,51 +142,12 @@
         <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Reason</label>
         {% include 'CodeableConcept.html' %}
       </div>      
-      <!-- Support sptInfo -->
-      <div class="input-item row">
-        <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Supporting Information</label>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <select id="sptInfo_sel" class="form-control input-sm">
-            <option value="Observation">Observation</option>
-            <option value="Condition">Condition</option>
-            <option value="DocumentReference">DocumentReference</option>
-          </select>
-          </div>
-          <button class="btn-info col-sm-2 col-xs-2 col-mg-2 col-lg-2 col-lg-offset-1" type="text" data-toggle="modal" data-target="#sptInfo_modal">
-          Reference
-          </button>
-
-          <div class="modal fade" id="sptInfo_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                   <button type="button" class="close" 
-                      data-dismiss="modal" aria-hidden="true">
-                         &times;
-                   </button>
-                   <h4 class="modal-title" id="supt_title">
-                      Supporting Information
-                   </h4>
-                </div>
-                <div class="modal-body" id="sptInfo_content">
-                  <span id="sptInfo_c"></span>
-                  <ul id="sptInfo_id" class="list-group">
-                  </ul>
-                </div>
-              </div><!-- /.modal-content -->
-            </div>
-          </div>
-        <div>
-          <span class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></span>
-          <p id="sptInfo_chosen" class="col-sm-6 col-xs-6 col-mg-6 col-lg-6">
-          </p>
-        </div>
-      </div>
 
       <!-- Specimen spec -->
       <div class="input-item row">
         <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Specimen</label>
         <p id="spec_chosen" class="col-sm-4 col-xs-4 col-mg-4 col-lg-4"></p>
+        <span id='id_spec' hidden></span>
         <button class="btn-info col-sm-2 col-xs-2 col-mg-2 col-lg-2" type="text" data-toggle="modal" data-target="#spec_modal">
           Reference
         </button>
@@ -234,7 +198,7 @@
 
     <div class="add_item row">
       
-      <button class="btn btn-primary col-xs-2 col-sm-2 col-md-2 col-lg-2 col-lg-offset-5" onclick="add_item()">Add Item</button>
+      <button class="btn btn-primary col-xs-2 col-sm-2 col-md-2 col-lg-2 col-lg-offset-5" id="addBtn" onclick="add_item()">Add Item</button>
 
       <button class="btn btn-warning col-xs-2 col-sm-2 col-md-2 col-lg-2 col-lg-offset-1" onclick="del_item()" id="del_item_id" style="display:none;">Del Item</button>
     </div>
@@ -249,6 +213,9 @@
         </div>
       </div>
       <hr/>
+      <div class="alert alert-success hint-msg hide">
+        Success
+      </div>
       <div class="input-item row">
         <button class="btn btn-success" id="btr_sub" onClick="Submit()">Submit</button>
         <button hidden class="btn btn-primary" id="btr_save" onclick="save()">Save</button>
@@ -256,3 +223,4 @@
     </div>
   </form>  
 </div>
+
