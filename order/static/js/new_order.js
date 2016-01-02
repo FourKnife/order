@@ -11,8 +11,9 @@ $(function () { $('#subject_modal').on('shown.bs.modal', function () {
     ret = ret['entry'];
     changeTitleToResult("subject_title", text, sum);
     for (var i = ret.length - 1; i >= 0; i--) {
+
       subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item sub_item\" id=\"sub_li_" + i +"\"><label>"
-      + text + ":"+ ret[i]['content']['name'][0]['text'] + "</label>"
+      + text + ":"+ ret[i]['div'] + "</label>"
       + "<span id='subject_entry_id' hidden>" + ret[i]['id'] +"</span>"
       +"</li>";      
     };
@@ -31,6 +32,56 @@ $(function () { $('#subject_modal').on('shown.bs.modal', function () {
   })
 });
 
+var target = "";       
+$(function () { $('#target_modal').on('shown.bs.modal', function () {
+
+  var text = $('#target_sel option:selected').val();
+  if (text != target){
+    var ul = document.getElementById("target_id");
+    while(ul.hasChildNodes()){
+        ul.removeChild(ul.firstChild);
+    }
+    target = text;
+  }
+
+  var obj = document.getElementById("target_id");
+  var a = obj.getElementsByTagName("li");
+  if(a.length == 0){
+    changeTitleToWating("target_title", text);
+
+    $.getJSON("search_target/",{'subject':text}, function(ret){
+      console.log(ret);
+      console.log(ret['total']);
+      var sum = ret['total'];
+      ret = ret['entry'];
+      changeTitleToResult("target_title", text, sum);
+      var subul = document.getElementById("target_id");
+      for (var i = ret.length - 1; i >= 0; i--) {
+
+        var str = ret[i]['div'].substring(5);
+        
+        subul.innerHTML = subul.innerHTML +  
+        "<li class=\"list-group-item ord_item\" id=\"target_li_" + i +"\"><label>"
+        +str + "</label>"
+        + "<span id='target_entry_id' hidden>" + ret[i]['id'] + "</span>"
+        + "</li>"; 
+      }
+      for (var i = ret.length - 1; i >= 0; i--) {
+        var l = document.getElementById("target_li_"+i);
+        l.onclick = function(){
+          var name = $(this).children("label").html();
+          var id = $(this).children("span").text();
+          $("p#target_chosen").text((name));
+          $("span#id_target").text(id);
+          $('#target_modal').modal('hide');
+        }
+      }
+      })
+    }//<!-- end of if -->
+  })
+});
+
+
 $(function () { $('#type_modal').on('shown.bs.modal', function () {
   var text = 'Encounter'
   var obj = document.getElementById("type_id");
@@ -39,27 +90,33 @@ $(function () { $('#type_modal').on('shown.bs.modal', function () {
     var title = document.getElementById("encounter_title");
     title.innerHTML = text + " Waiting....";
 
-    $.getJSON("search_type/",{'subject':text}, function(ret){                  
+    $.getJSON("search_type/",{'subject':text}, function(ret){ 
+      if (!!ret['issue']){
+        alert(ret['issue']);
+        $('#type_modal').modal('hide');
+        return;
+      }
       var ord_ul = document.getElementById("type_id");
-      console.log(typeof(ret));
       sum = ret['total'];
-      title.innerHTML = text + " " + sum +" Results"
-      ret = ret['entry'];
-      for (var i = ret.length - 1; i >= 0; i--) {
-        var str = ret[i]['resource']['text']['div'].substring(5);
-        var id = ret[i]['resource']['id'];
-        ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item type_item\" id=\"type_li_" + i +"\"><label>"
-        + str + "</label>" + "<span id='encounter_entry_id' hidden>" + id + "</span>"
-        +"</li>";     
-      };
-      for (var i = ret.length - 1; i >= 0; i--) {
-        var li = document.getElementById("type_li_"+i);
-        li.onclick = function(){
-          var name = $(this).children("label").text();
-          var id = $(this).children("span").text();
-          $("p#type_chosen").text(name);
-          $("span#id_encounter").text(id);
-          $('#type_modal').modal('hide');
+      title.innerHTML = text + " " + sum +" Results";
+      if (sum > 0){
+        ret = ret['entry'];
+        for (var i = ret.length - 1; i >= 0; i--) {
+          var str = ret[i]['resource']['text']['div'].substring(5);
+          var id = ret[i]['resource']['id'];
+          ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item type_item\" id=\"type_li_" + i +"\"><label>"
+          + str + "</label>" + "<span id='encounter_entry_id' hidden>" + id + "</span>"
+          +"</li>";     
+        };
+        for (var i = ret.length - 1; i >= 0; i--) {
+          var li = document.getElementById("type_li_"+i);
+          li.onclick = function(){
+            var name = $(this).children("label").text();
+            var id = $(this).children("span").text();
+            $("p#type_chosen").text(name);
+            $("span#id_encounter").text(id);
+            $('#type_modal').modal('hide');
+          }
         }
       }
     })
@@ -107,7 +164,7 @@ $(function () { $('#sptInfo_modal').on('shown.bs.modal', function () {
       changeTitleToWating("supt_title", text);
       $.getJSON("search_sptInfo/",{'subject':text}, function(ret){
 
-          var sum = ret['total'];
+          var sum = ret['totalResults'];
           ret = ret['entry']
           changeTitleToResult("supt_title", text, sum);
           var subul = document.getElementById("sptInfo_id");
@@ -141,7 +198,7 @@ $(function () { $('#spec_modal').on('shown.bs.modal', function () {
     if(a.length == 0){
       changeTitleToWating('spec_title', text);
       $.getJSON("search_specimen/",{'subject':text}, function(ret){                    
-          var sum = ret['total'];
+          var sum = ret['totalResults'];
           changeTitleToResult('spec_title', text, sum);
           ret = ret['entry'];
           if (sum > 0){
@@ -178,7 +235,7 @@ $(function () { $('#item_spec_modal').on('shown.bs.modal', function () {
     if(a.length == 0){
       changeTitleToWating("item_spec_title", text);
       $.getJSON("search_specimen/",{'subject':text}, function(ret){
-          var sum = ret['total'];
+          var sum = ret['totalResults'];
           changeTitleToResult("item_spec_title", text, sum);
           if (sum > 0 ){
             ret = ret['entry'];
@@ -200,45 +257,43 @@ $(function () { $('#item_spec_modal').on('shown.bs.modal', function () {
     })
   });
 
-
-$(function () { $('#item_obseq_modal').on('shown.bs.modal', function () {
-    var text = 'Observation';
-    var obj = document.getElementById("item_obseq_id");
-    var a = obj.getElementsByTagName("li");
-    if(a.length == 0){
-      changeTitleToWating("item_obseq_title", text);
-      $.getJSON("search_Observation/",{'subject':text}, function(ret){
-          console.log(typeof(ret));
-          console.log(ret);
-          var sum = ret['total'];
-          alert(ret["entry"]);
-          changeTitleToResult("item_obseq_title", text, sum);
-          if (sum > 0 ){
-            ret = ret['entry'];
-            var ord_ul = document.getElementById("item_obseq_id");
-            for (var i = ret.length - 1; i >= 0; i--) {
-              var str = ret[i]['div'].substring(5);
-              var id = ret[i]['id'];
-              ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item obseq_item\" id=\"item_obseq_li_"+i +"\"><label>"
-              + str + "</label><span id='item_obseq_entry_id' hidden>" + id + "</span>"
-              +"</li>";                   
-            };
-            
-            for (var i = ret.length - 1; i >= 0; i--) {
-              var li = document.getElementById("item_obseq_li_"+i);
-              li.onclick = function(){
-                var str = $(this).children("label").text();
-                var id = $(this).children("span").text();
-                $("p#item_obseq_chosen").text(str);     
-                $("span#id_item_obseq").text(id);      
-                $('#item_obseq_modal').modal('hide');
-              }
+function addItemObservation(btn){
+  $('#item_obseq_modal').modal('show')
+  var text = 'Observation';
+  var obj = document.getElementById("item_obseq_id");
+  var a = obj.getElementsByTagName("li");
+  while(obj.hasChildNodes()){
+     obj.removeChild(obj.firstChild);
+  }
+  if(a.length == 0){
+    changeTitleToWating("item_obseq_title", text);
+    $.getJSON("search_Observation/",{'subject':text}, function(ret){
+        var sum = ret['total'];
+        changeTitleToResult("item_obseq_title", text, sum);
+        if (sum > 0 ){
+          ret = ret['entry'];
+          var ord_ul = document.getElementById("item_obseq_id");
+          for (var i = ret.length - 1; i >= 0; i--) {
+            var str = ret[i]['div'].substring(5);
+            var id = ret[i]['id'];
+            ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item obseq_item\" id=\"item_obseq_li_"+i +"\"><label>"
+            + str + "</label><span id='item_obseq_entry_id' hidden>" + id + "</span>"
+            +"</li>";                   
+          }
+          for (var i = ret.length - 1; i >= 0; i--) {
+            var li = document.getElementById("item_obseq_li_"+i);
+            li.onclick = function(){
+              var str = $(this).children("label").text();
+              var id = $(this).children("span").text();
+              btn.prev().prev().text(str);
+              $("span#id_item_obseq").text(id);      
+              $('#item_obseq_modal').modal('hide');
             }
           }
-      })
-      }//<!-- end of if -->
+        }
     })
-  });
+    }//<!-- end of if -->
+}
 
 function changeTitleToWating(title_id, text){
   var title = document.getElementById(title_id);
@@ -250,66 +305,28 @@ function changeTitleToResult(title_id, text, sum){
   title.innerHTML = text + " " + sum + " Results";
 }
 
-var target = "";       
-$(function () { $('#target_modal').on('shown.bs.modal', function () {
+var item_str;
+$(document).ready(function(){
+  item_str = $('#new_digorder_item_0').html();
+  console.log(item_str);
+  $(".obr_btn").click(function(){
+    addItemObservation($(this));
+  });
 
-  var text = $('#target_sel option:selected').val();
-  if (text != target){
-    var ul = document.getElementById("target_id");
-    while(ul.hasChildNodes()){
-        ul.removeChild(ul.firstChild);
-    }
-    target = text;
-  }
-
-  var obj = document.getElementById("target_id");
-  var a = obj.getElementsByTagName("li");
-  if(a.length == 0){
-    changeTitleToWating("target_title", text);
-
-    $.getJSON("search_target/",{'subject':text}, function(ret){
-      var sum = ret['total'];
-      ret = ret['entry'];
-      changeTitleToResult("target_title", text, sum);
-      var subul = document.getElementById("target_id");
-      for (var i = ret.length - 1; i >= 0; i--) {
-        var str = ret[i]['resource']['text']['div'].substring(5);
-        
-        subul.innerHTML = subul.innerHTML +  
-        "<li class=\"list-group-item ord_item\" id=\"target_li_" + i +"\"><label>"
-        +str + "</label>"
-        + "<span id='target_entry_id' hidden>" + ret[i]['resource']['id'] + "</span>"
-        + "</li>"; 
-      }
-      for (var i = ret.length - 1; i >= 0; i--) {
-        var l = document.getElementById("target_li_"+i);
-        l.onclick = function(){
-          var name = $(this).children("label").html();
-          var id = $(this).children("span").text();
-          $("p#target_chosen").text(name);
-          $("span#id_target").text(id);
-          $('#target_modal').modal('hide');
-        }
-      }
-      })
-    }//<!-- end of if -->
-  })
 });
-
-
 
 var item_sum = 0;
 
 function add_item(){
   item_sum = item_sum+1;
-  item = document.getElementById("new_digorder_item");
-  context = document.getElementById("new_digorder_item_0");
-
-  var str = "<div class=\"row\" id = \"new_digorder_item_" + item_sum +"\"" +">"+ context.innerHTML + "</div>"
+  var str = item_str;
+  var str = "<div class=\"row\" id = \"new_digorder_item_" + item_sum +"\"" +">"+ str + "</div>"
   $("div#new_digorder_item").append(str);
-  //item.innerHTML = item.innerHTML
-  //+ "<div class=\"row\" id = \"new_digorder_item_" + item_sum +"\"" +">"
-  //+ context.innerHTML + "</div>";
+  var temp = "#new_digorder_item_" + item_sum;
+  $(temp).find("button").click(function(){
+    addItemObservation($(this));
+  });
+
   if (item_sum == 1) {
     btn = document.getElementById("del_item_id");
     btn.style.display = "block";
@@ -359,30 +376,18 @@ function get_page_data(){
   length = $("#new_digorder_item").children("div").length;
   item = []
   for (var i = 0; i < length; i++){
-    div = $("#new_digorder_item_"+i).find("input.item_system");
-    item_system = div.val();
-    div = $("#new_digorder_item_"+i).find("input.item_code");
-    item_code = div.val();
-    div = $("#new_digorder_item_"+i).find("input.item_display");
-    item_display = div.val();
-    div = $("#new_digorder_item_"+i).find("input.item_description");
-    item_description = div.val();
-    div = $("#new_digorder_item_"+i).find("input.body_system");
-    body_system = div.val();
-    div = $("#new_digorder_item_"+i).find("input.body_code");
-    body_code = div.val();
-    div = $("#new_digorder_item_"+i).find("input.body_display");
-    body_display = div.val();
-    div = $("#new_digorder_item_"+i).find("input.body_description");
-    body_description = div.val();
+    item_system = $("#new_digorder_item_"+i).find("input.item_system").val();
+    item_code = $("#new_digorder_item_"+i).find("input.item_code").val();
+    item_display =  $("#new_digorder_item_"+i).find("input.item_display").val();
+    item_description = $("#new_digorder_item_"+i).find("textarea.item_description").val();
 
     observation = $("#item_obseq_chosen").text();
     if (observation != ''){
-      observation = 'Observation\/'+$('span#id_item_obseq').text();
+      observation = $('span#id_item_obseq').text();
     }
     specimen = $("#item_spec_chosen").text();
     if (specimen != ''){
-      specimen = 'Specimen\/' + $("span#id_spec").text();
+      specimen = $("span#id_spec").text();
     }
     
     item[i] = {
@@ -421,13 +426,10 @@ function get_page_data(){
     };
   }
 
-  sub = $('p#subject_chosen').text();
-  var subject= get_ref(/Patient|Group|Location|Device/, sub) + $('span#id_subject').text();
-  sub = $('p#target_chosen').text(); 
-  var target= get_ref(/Practitioner|Device|Organization/, sub) + $('span#id_target').text();
-  sub = $('p#type_chosen').text();
-  var regx = /Encounter\/\d+/;
-  var encounter = "Encounter\/" + $('span#id_encounter').text();
+
+  var subject= $('span#id_subject').text();
+  var target= $('span#id_target').text();
+  var encounter = $('span#id_encounter').text();
   var order_id = $('p#order_id').text();
   var infos = {
     id_system:$('#id_system').val(),
@@ -460,7 +462,7 @@ function form_report_json(info){
         "resourceType": "DiagnosticOrder",
         "text": {
           "status": "generated",
-          "div": "<div>\n\t\t\t<p>Chest CT - ordered May 8, 2013 by Dr. Adam Careful</p>\n\t\t</div>"
+          "div": "<div></div>"
         },
         "subject": {
           "reference": info.subject
@@ -499,7 +501,7 @@ function form_report_json(info){
             "status": "requested",
             "dateTime": info.date,
             "actor": {
-              "reference": "example"
+              "reference": "Lab name"
             }
           }
         ],
@@ -532,6 +534,7 @@ var show_msg = function(msg) {
 function Submit(){
   var post_data = form_report_json(get_page_data());
   console.log(post_data);
+
   var json_str = JSON.stringify(post_data);
   $.ajax({
     url:"updata/",

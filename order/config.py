@@ -37,6 +37,7 @@ GENOMICSCOPE = [
 'user/Specimen.read',
 'user/DiagnosticOrder.read',
 'user/DiagnosticOrder.write',
+'user/Practitioner.read',
 ]
 SCOPES = [
 'launch',

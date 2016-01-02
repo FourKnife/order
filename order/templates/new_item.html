@@ -27,7 +27,7 @@
       <!-- Subject -->
       <div class="input-item row">
         <div>
-          <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Subject:</label>
+          <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">*Subject:</label>
           <div class="input-sm col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <select name="Subject" id="subject_sel" class="input-sm form-control">
             <option value="Patient">Patient</option>
@@ -61,6 +61,7 @@
             </div>
           </div>
         </div>
+        <hr>
         <div>
           <span class="col-xs-4 col-sm-4 col-md-4 col-lg-4" ></span>
           <p name="subject" id="subject_chosen" class="col-sm-6 col-xs-6 col-mg-6 col-lg-6">
@@ -70,7 +71,7 @@
       </div>
       <!--target-->
       <div class="input-item row">
-        <label id="Target" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Target:</label>
+        <label id="Target" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Sequencing Laboratory:</label>
         <div class="input-sm col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <select name="target" id="target_sel" class="input-sm form-control">
           <option value="Practitioner">Practitioner</option>
@@ -99,6 +100,7 @@
             </div><!-- /.modal-content -->
           </div>
         </div>
+        <hr>
         <div>
           <span class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></span>
           <p name="target" id="target_chosen" class="col-sm-6 col-xs-6 col-mg-6 col-lg-6"></p>
@@ -143,7 +145,7 @@
         {% include 'CodeableConcept.html' %}
       </div>      
 
-      <!-- Specimen spec -->
+      <!-- Specimen spec >
       <div class="input-item row">
         <label class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Specimen</label>
         <p id="spec_chosen" class="col-sm-4 col-xs-4 col-mg-4 col-lg-4"></p>
@@ -169,10 +171,10 @@
                 <ul id="spec_id" class="list-group">
                 </ul>
               </div>
-            </div><!-- /.modal-content -->
+            </div>
           </div>
         </div>
-      </div>
+      </div-->
 
 
       <!-- Priority prio -->
@@ -192,7 +194,21 @@
 
     <div class="new_digorder_item" id = "new_digorder_item">  
       <div class="row" id = "new_digorder_item_0">
-      {% include 'item_temp.html' %}
+        {% include 'item_temp.html' %}
+      </div>
+      <div class="modal fade" id="item_obseq_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+           <h4 class="modal-title" id="item_obseq_title">Observation For Sequence</h4>
+         </div>
+          <div class="modal-body" id="obseq_content">
+           <span id="sobseq_c"></span>
+           <ul id="item_obseq_id" class="list-group"></ul>
+          </div>
+          </div>
+        </div>
       </div>
     </div>
 
