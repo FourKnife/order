@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from urllib import urlencode
 from urllib import quote
 import requests
-import re
+import re 
 from django.shortcuts import redirect 
 from django.views.decorators.csrf import csrf_exempt
 from config import GENOMICSCOPE, GENOMIC_ID, testJ, INDENTIFIER,REPORT,testJson, ID_SRCRET_BASE64, redirect_uri, API_BASE, AUTH_BASE, CLIENT_ID, REDIRECT_URI, SCOPES 
@@ -77,23 +77,24 @@ def check_order(request, status):
   dat = search(request, 'DiagnosticOrder')
 
   data=[]
-  total = dat['total']
+  total = dat['totalResults']
   if total == 0:
     return render(request, 'orders_item.html', {'status': status_dict[status], 'total':total, 'orders':data});
 
   for d in dat['entry']:
-    if ('event' not in d['resource']):
+    if ('event' not in d['content']):
       continue
-    id_ = d['resource']['id']
+    id_ = d['id']
     id_ = ''.join(map(lambda x: "%c" % ord(x), list(id_)))
-    order = get_ref('encounter', d['resource'])
+    id_ = id_[id_.find('DiagnosticOrder')+len('DiagnosticOrder')+1:]
+    order = get_ref('encounter', d['content'])
 
-    time = d['resource']['event'][0]['dateTime']
+    time = d['content']['event'][0]['dateTime']
     time = ''.join(map(lambda x: "%c" % ord(x), list(time)))
     time = ""
-    statu = d['resource']['status']
+    statu = d['content']['status']
     statu = ''.join(map(lambda x: "%c" % ord(x), list(statu)))
-    name = d['resource']['orderer']['reference']
+    name = d['content']['orderer']['reference']
     name = ''.join(map(lambda x: "%c" % ord(x), list(name)))
     #div = d['resource']['text']['div']
     #div = ''.join(map(lambda x: "%c" % ord(x), list(div)))
@@ -124,16 +125,20 @@ def new_order(request):
   return render(request, 'new_order.html')
 
 def order_detail(request, id):
-  order_search = search(request, 'DiagnosticOrder', {'id':id})
+  order_search = search(request, 'DiagnosticOrder')
 
   entry = order_search['entry']
   order = None
+  print id
   for e in entry:
-    if e['resource']['id'] == id :
-        order = e['resource']
+    id_ = e['id']
+    id_ = ''.join(map(lambda x: "%c" % ord(x), list(id_)))
+    id_ = id_[id_.find('DiagnosticOrder')+len('DiagnosticOrder')+1:]
+    if id_ == id :
+        order = e['content']
         break
+  print '+'*40
   specimen = ''
-
   if ('specimen' in order.keys()):
     specimen = order['specimen']
   priority = ''
@@ -178,7 +183,6 @@ def launch(request):
   scope = ' '.join(GENOMICSCOPE)
 
   print '+'*5
-  print request.COOKIES
   #if 'genomic_access_token' not in request.COOKIES:
   if ('genomic_access_token' not in request.session):
     print "START: GENOMIC"
@@ -190,7 +194,7 @@ def launch(request):
 
     #s = 'scope=user%2FSequence.read+user%2FObservation.read+user%2FObservation.writeuser%2FCondition.read+user%2FPatient.read+user%2FProcedure.read+patient%2FObservation.read&'
     #redirect_args = 'scope=user%2FSequence.read+user%2FObservation.read+user%2FObservation.writeuser%2FCondition.read+user%2FPatient.read+user%2FProcedure.read+patient%2FObservation.read&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Frecv_redirect%2F&response_type=code&client_id=3c05835b-6d76-4019-abcb-2a801528ab8a6'
-    re = 'http://genomics-advisor.smartplatforms.org:2048/auth/authorize?'+ urlencode(args)
+    re = 'http://localhost:2048/auth/authorize?'+ urlencode(args)
 
     resp = HttpResponseRedirect(re)
 
@@ -248,7 +252,7 @@ def recv_redirect(request):
     "Content-Length" : len(datas)
   }
   print 'begin'
-  resp = requests.post('http://genomics-advisor.smartplatforms.org:2048/auth/token', data=datas,headers=headers)
+  resp = requests.post('http://localhost:2048/auth/token', data=datas,headers=headers)
   print resp
   print 'end'
   if resp.status_code != 200:
@@ -304,7 +308,6 @@ def search_type(request):
 
   subject = request.GET.get('subject')
   order_search = search(request, 'Encounter')
-  print order_search
   if noIssue(order_search):
     datas=[]
     entry={}
@@ -493,16 +496,24 @@ def updata(request):
             data=json.dumps(order), 
             headers={'Authorization': 'Bearer %s'% access_token})
   print 'Order is OK'
-  print resp.json() 
-  order_id = resp.json() 
-  dorder['identifier'][0]['value'] = order_id["id"] 
-
-  resp = requests.post('%s/DiagnosticOrder?_format=json'% API_BASE,
+  #print resp.json() 
+  #order_id = resp.json() 
+  #dorder['identifier'][0]['value'] = order_id["id"] 
+  #print '-'*20
+  print dorder
+  resp = requests.post('%s/orderforgenetics?_format=json'% API_BASE,
             data=json.dumps(dorder), 
             headers={'Authorization': 'Bearer %s'% access_token})
   print 'Diagnostic Order is ok'
   print resp
-  
+
+  #f = open('log.txt', 'w')
+  #f.write(resp.content)
+  #f.close()
+  #print resp.content
+  print '-'*20
+  #print resp.json()
+  #print '-'*20
   return HttpResponse(json.dumps(resp.json()), content_type='application/json')
 
 @csrf_exempt
@@ -521,7 +532,7 @@ def updataOrder(request):
   #print resp.json()
   dorder_id = req["id"][:24]
 
-  resp = requests.put('%s/DiagnosticOrder/%s' %(API_BASE,dorder_id),
+  resp = requests.put('%s/orderforgenetics/%s' %(API_BASE,dorder_id),
             data=json.dumps(dorder), 
             headers={'Content-Type':'application/json','Authorization':'Bearer %s'% access_token})
 
@@ -536,8 +547,7 @@ def test(request):
   #id = '5673ac590cf298c62eff72de'
   #order_search = read_api(request, id)
   print "begin"
-  order_search = call_api('/Practitioner', args);
-  print order_search
+  order_search = call_api('/orderforgenetics', args);
   return render(request, 'test.html', {'data':order_search})
   #upload_seq(request, testJson)
   #return render(request, 'test.html', {'data':'order_search'})

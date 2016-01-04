@@ -11,7 +11,6 @@ $(function () { $('#subject_modal').on('shown.bs.modal', function () {
     ret = ret['entry'];
     changeTitleToResult("subject_title", text, sum);
     for (var i = ret.length - 1; i >= 0; i--) {
-
       subul.innerHTML = subul.innerHTML +  "<li class=\"list-group-item sub_item\" id=\"sub_li_" + i +"\"><label>"
       + text + ":"+ ret[i]['div'] + "</label>"
       + "<span id='subject_entry_id' hidden>" + ret[i]['id'] +"</span>"
@@ -59,11 +58,10 @@ $(function () { $('#target_modal').on('shown.bs.modal', function () {
       for (var i = ret.length - 1; i >= 0; i--) {
 
         var str = ret[i]['div'].substring(5);
-        
         subul.innerHTML = subul.innerHTML +  
         "<li class=\"list-group-item ord_item\" id=\"target_li_" + i +"\"><label>"
         +str + "</label>"
-        + "<span id='target_entry_id' hidden>" + ret[i]['id'] + "</span>"
+        + "<span id='target_entry_id' hidden>" + text + "/" + ret[i]['id'] + "</span>"
         + "</li>"; 
       }
       for (var i = ret.length - 1; i >= 0; i--) {
@@ -275,7 +273,7 @@ function addItemObservation(btn){
           var ord_ul = document.getElementById("item_obseq_id");
           for (var i = ret.length - 1; i >= 0; i--) {
             var str = ret[i]['div'].substring(5);
-            var id = ret[i]['id'];
+            var id = 'Observation/' + ret[i]['id'];
             ord_ul.innerHTML = ord_ul.innerHTML +  "<li class=\"list-group-item obseq_item\" id=\"item_obseq_li_"+i +"\"><label>"
             + str + "</label><span id='item_obseq_entry_id' hidden>" + id + "</span>"
             +"</li>";                   
@@ -308,7 +306,6 @@ function changeTitleToResult(title_id, text, sum){
 var item_str;
 $(document).ready(function(){
   item_str = $('#new_digorder_item_0').html();
-  console.log(item_str);
   $(".obr_btn").click(function(){
     addItemObservation($(this));
   });
@@ -373,7 +370,7 @@ function getNowFormatDate() {
 
 var item = new Array();
 function get_page_data(){
-  length = $("#new_digorder_item").children("div").length;
+  length = $("#new_digorder_item").children("div").length-1;
   item = []
   for (var i = 0; i < length; i++){
     item_system = $("#new_digorder_item_"+i).find("input.item_system").val();
@@ -431,14 +428,15 @@ function get_page_data(){
   var target= $('span#id_target').text();
   var encounter = $('span#id_encounter').text();
   var order_id = $('p#order_id').text();
+  var orderer = 'Practitioner/234'
   var infos = {
     id_system:$('#id_system').val(),
     id_value:$('#id_value').val(),
     order_id:order_id,
     date:getNowFormatDate(),
     subject:subject,
-    orderer:target,
-    target:target,
+    orderer:orderer,
+    _target:target,
     encounter:encounter,
     reason_system:$("#reason_system").val(),
     reason_code:$("#reason_code").val(),
@@ -459,7 +457,7 @@ function get_ref(regx, sub){
 function form_report_json(info){
   var res_json = {
       "diagnostic_order" : {
-        "resourceType": "DiagnosticOrder",
+        "resourceType": "orderforgenetics",
         "text": {
           "status": "generated",
           "div": "<div></div>"
@@ -468,7 +466,7 @@ function form_report_json(info){
           "reference": info.subject
         },
         "orderer":{
-          "reference": "User Name",
+          "reference": info.orderer
         },
         "identifier": [
           {
@@ -476,9 +474,6 @@ function form_report_json(info){
             "value": info.order_id,
           }
         ],
-        "encounter": {
-          "reference": info.encounter,
-        },
         "reason": [
           {
             
@@ -495,13 +490,17 @@ function form_report_json(info){
         ],
         "priority" : info.priority,
         "status": "requested",
-        "extension":info.item,
+        "extension":[
+        {
+          "extension":info.item,
+        }
+        ],
         "event": [
           {
             "status": "requested",
             "dateTime": info.date,
             "actor": {
-              "reference": "Lab name"
+              "reference": info.orderer
             }
           }
         ],
@@ -520,7 +519,7 @@ function form_report_json(info){
           }
         ],
         "target":{
-          "reference": info.target,
+          "reference": info._target,
         }
       }
     }
@@ -546,6 +545,7 @@ function Submit(){
       show_msg();
     }
   });
+
 
 }
 

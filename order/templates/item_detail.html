@@ -2,7 +2,10 @@
 			<span class="label order-{{status}} label-right">{{status}}</span>
 				<div class="info-item"><span class="item-name">Subject: </span><span>{{subject}}</span></div>
 				<div class="info-item"><span class="item-name">Orderer: </span><span>{{orderer}}</span></div>
+
+				{% if encounter != '' %}
 				<div class="info-item"><span class="item-name">Encounter: </span><span>{{encounter}}</span></div>
+				{% endif %}
 	
 				{% if reason != '' %}
 				<div class="info-item"><span class="item-name">Reason: </span><div>{{reason}}</div></div>
@@ -44,12 +47,12 @@
 					</span>
 					</div>
 					{% for s in item.extension %}
-						{% if s.url == 'specimen' %}
+						{% if s.url == 'specimen' and s.valueReference.reference != '' %}
 							<div class="sub-item"><span class="item-name">Specimen: </span><span>{{s.valueReference.reference}}</span></div>
 						{% endif %}
 					{% endfor %}
 					{% for s in item.extension %}
-						{% if s.url == 'obsForSequence' %}
+						{% if s.url == 'obsForSequence' and s.valueReference.reference != '' %}
 							<div class="sub-item"><span class="item-name">obsForSequence: </span><span>{{s.valueReference.reference}}</span></div>
 						{% endif %}
 					{% endfor %}
